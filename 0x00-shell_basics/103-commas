@@ -1,2 +1,2 @@
 #!/bin/bash
-ls -A1p | grep -v "/$" | sort -d -k1.1,1 -k1.2n,1.2 | sed -z 's/\n/, /g; s/,$/\n/'
+{ printf "%s,\n" . .. $(LC_ALL=C find . -maxdepth 1 -type d -name '[0-9A-Za-z]*' -printf '%f/\n' | sort -df) $(LC_ALL=C find . -maxdepth 1 -type f -o -type d -name '.*' -printf '%f\n' | sort -df); echo; }
