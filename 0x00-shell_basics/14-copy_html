@@ -1,7 +1,2 @@
-#!/bin/bash=
-parent_dir="$(dirname "$(pwd)")"
-for file in *.html; do
-    if [ ! -e "$parent_dir/$file" ] || [ "$file" -nt "$parent_dir/$file" ]; then
-        cp "$file" "$parent_dir/$file"
-    fi
-done
+#!/bin/bash
+find . -name "*.html" -newer ../ -exec cp -u -t ../ {} +
