@@ -1,25 +1,29 @@
 #!/usr/bin/python3
-"""Function that prints top ten hot posts for a given subreddit"""
-import requests
+
+"""
+this is a module
+"""
+
+from requests import get
 
 
 def top_ten(subreddit):
-    """Gets top ten posts in subreddit
-       Args:
-           subreddit (str): name of subreddit
     """
-    base_url = 'https://api.reddit.com/r/'
-    headers = {'User-Agent': 'my-app/0.0.1'}
-    response = requests.get(
-        '{}{}/hot?limit=10'.format(
-            base_url, subreddit), headers=headers, allow_redirects=False)
+    this is function
+    """
 
-    if response.status_code != 200:
-        print('None')
-    else:
-        hot_dict = response.json()
-        if len(hot_dict['data']['children']) == 0:
-            print('None')
-        else:
-            for d in hot_dict['data']['children']:
-                print(d['data']['title'])
+    if subreddit is None or not isinstance(subreddit, str):
+        print("None")
+
+    agent = {'User-agent': 'Google Chrome Version 81.0.4044.129'}
+    parameters = {'limit': 10}
+    my_url = 'https://www.reddit.com/r/{}/hot/.json'.format(subreddit)
+
+    results = get(my_url, headers=agent, params=parameters).json()
+
+    try:
+        my_data = results.get('data').get('children')
+        for i in my_data:
+            print(i.get('data').get('title'))
+    except Exception:
+        print("None")
