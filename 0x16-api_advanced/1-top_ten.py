@@ -1,29 +1,21 @@
 #!/usr/bin/python3
-
-"""
-this is a module
-"""
-
-from requests import get
+"""Function to print hot posts on a given Reddit subreddit."""
+import requests
 
 
 def top_ten(subreddit):
-    """
-    this is function
-    """
-
-    if subreddit is None or not isinstance(subreddit, str):
+    """Print the titles of the 10 hottest posts on a given subreddit."""
+    url = "https://www.reddit.com/r/{}/hot/.json".format(subreddit)
+    headers = {
+        "User-Agent": "0x16.api.advanced.project by /u/chesahkalu"
+    }
+    params = {
+        "limit": 10
+    }
+    response = requests.get(url, headers=headers, params=params,
+                            allow_redirects=False)
+    if response.status_code == 404:
         print("None")
-
-    agent = {'User-agent': 'Google Chrome Version 81.0.4044.129'}
-    parameters = {'limit': 10}
-    my_url = 'https://www.reddit.com/r/{}/hot/.json'.format(subreddit)
-
-    results = get(my_url, headers=agent, params=parameters).json()
-
-    try:
-        my_data = results.get('data').get('children')
-        for i in my_data:
-            print(i.get('data').get('title'))
-    except Exception:
-        print("None")
+        return
+    results = response.json().get("data")
+    [print(c.get("data").get("title")) for c in results.get("children")]
