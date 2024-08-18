@@ -1,4 +1,28 @@
 #!/usr/bin/env bash
-# script that generates a MySQL dump and creates a compressed archive out of it
+# Script that generates a MySQL dump and creates a compressed archive out of it
+
+# Check if the script received the correct number of arguments
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <MySQL root password>"
+  exit 1
+fi
+
+# Generate MySQL dump and compress it into a tar.gz archive
 mysqldump -u root --all-databases -p"$1" > backup.sql
-tar -czvf "$(date '+%d-%m-%Y').tar.gz" backup.sql
+
+# Check if the dump was created successfully
+if [ $? -eq 0 ]; then
+  tar -czvf "$(date '+%d-%m-%Y').tar.gz" backup.sql
+  
+  # Verify that the tar.gz file was created successfully
+  if [ $? -eq 0 ]; then
+    echo "Backup successfully created: $(date '+%d-%m-%Y').tar.gz"
+    rm backup.sql  # Clean up the SQL file
+  else
+    echo "Error creating tar.gz archive."
+    exit 1
+  fi
+else
+  echo "Error creating MySQL dump."
+  exit 1
+fi
