@@ -1,5 +1,37 @@
-#!/usr/bin/env bash
-# Creates a dump of all sql databases
-mysqldump -u root --password="$1" -A --events > backup.sql
-file_name=$(date +"%d-%m-%Y")
-tar -czvf "$file_name".tar.gz backup.sql
+#!/bin/bash
+
+# Check if the user provided a password as an argument
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <mysql_root_password>"
+    exit 1
+fi
+
+# Assign the password from the argument
+MYSQL_ROOT_PASSWORD=$1
+
+# Generate the MySQL dump and redirect stderr to log file to catch errors
+mysqldump -u root -p"$MYSQL_ROOT_PASSWORD" --all-databases > backup.sql 2> dump_error.log
+
+# Check if the dump was successful by checking if backup.sql exists and has content
+if [ ! -s backup.sql ]; then
+    echo "MySQL dump failed! Check dump_error.log for details."
+    exit 1
+fi
+
+# Get the current date in day-month-year format
+DATE=$(date +"%d-%m-%Y")
+
+# Create a compressed tar.gz archive, redirecting stderr to log
+tar -czvf "$DATE.tar.gz" backup.sql 2> tar_error.log
+
+# Check if the archive creation was successful
+if [ $? -ne 0 ]; then
+    echo "Failed to create archive! Check tar_error.log for details."
+    exit 1
+fi
+
+# Remove the uncompressed SQL dump file to clean up
+rm backup.sql
+
+# Print success message
+echo "Backup completed successfully! Archive created: $DATE.tar.gz"
