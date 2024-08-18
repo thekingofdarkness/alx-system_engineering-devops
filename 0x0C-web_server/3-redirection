@@ -1,1 +1,45 @@
+#!/usr/bin/env bash
+
+# Configures a new Ubuntu machine by installing Nginx
+# Nginx will be set up to listen on port 80 and redirect /redirect_me to a YouTube video.
+
+echo -e "Updating and installing Nginx.\n"
+sudo apt-get update -y -qq && \
+sudo apt-get install nginx -y
+
+echo -e "\nSetting up Nginx.\n"
+
+# Starting Nginx service
+sudo service nginx start
+
+# Allowing Nginx through the firewall
+sudo ufw allow 'Nginx HTTP'
+
+# Give the user ownership of website files for easy editing
+sudo chown -R "$USER":"$USER" /var/www/html
+sudo chmod -R 755 /var/www
+
+# Backup the default index file
+sudo cp /var/www/html/index.nginx-debian.html /var/www/html/index.nginx-debian.html.bckp
+
+# Create a new index file with "Hello World"
+echo -e "Hello World!" | sudo tee /var/www/html/index.nginx-debian.html
+
+# Backup the default Nginx configuration file
+sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bckp
+
+# Update the Nginx configuration to redirect /redirect_me to YouTube
+sudo sed -i '/location \/ {/a \ \ \ \ location /redirect_me {\n\ \ \ \ \ \ rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;\n\ \ \ \ }\n' /etc/nginx/sites-available/default
+
+# Test the Nginx configuration
+sudo nginx -t
+
+# Restart Nginx to apply changes
+sudo service nginx restart
+
+# Verify the redirection
+echo -e "\nChecking the redirection status for /redirect_me.\n"
+curl -sI http://34.202.233.225/redirect_me/
+
+echo -e "\nSetup completed.\n"
 
