@@ -29,17 +29,24 @@ echo -e "Hello World!" | sudo tee /var/www/html/index.nginx-debian.html
 sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bckp
 
 # Update the Nginx configuration to redirect /redirect_me to YouTube
+echo -e "\nUpdating Nginx configuration for redirection.\n"
 sudo sed -i '/location \/ {/a \ \ \ \ location /redirect_me {\n\ \ \ \ \ \ rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;\n\ \ \ \ }\n' /etc/nginx/sites-available/default
 
-# Test the Nginx configuration
+# Check Nginx configuration syntax
+echo -e "\nTesting Nginx configuration.\n"
 sudo nginx -t
 
 # Restart Nginx to apply changes
+echo -e "\nRestarting Nginx.\n"
 sudo service nginx restart
 
 # Verify the redirection
 echo -e "\nChecking the redirection status for /redirect_me.\n"
-curl -sI http://34.202.233.225/redirect_me/
+curl -sI http://34.202.233.225/redirect_me/ | grep HTTP
+
+# Check for any errors or relevant information in the logs
+echo -e "\nChecking Nginx error logs.\n"
+sudo tail -n 20 /var/log/nginx/error.log
 
 echo -e "\nSetup completed.\n"
 
